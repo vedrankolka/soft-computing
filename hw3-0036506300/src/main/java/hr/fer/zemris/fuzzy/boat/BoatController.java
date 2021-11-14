@@ -6,6 +6,7 @@ import hr.fer.zemris.fuzzy.controller.IFuzzyController;
 import hr.fer.zemris.fuzzy.defuzzifier.COADefuzzifier;
 import hr.fer.zemris.fuzzy.defuzzifier.IDefuzzifier;
 import hr.fer.zemris.fuzzy.operations.IBinaryFunction;
+import hr.fer.zemris.fuzzy.operations.IUnaryFunction;
 import hr.fer.zemris.fuzzy.operations.Operations;
 
 public class BoatController implements IFuzzyController {
@@ -34,10 +35,11 @@ public class BoatController implements IFuzzyController {
 		IBinaryFunction mamdaniImplication = Operations.zadehAnd();
 		IBinaryFunction and = Operations.hamacherTNorm(1.0);
 		IBinaryFunction or = Operations.zadehOr();
+		IUnaryFunction not = Operations.zadehNot();
 		
 		IDefuzzifier defuzzifier = new COADefuzzifier();
-		IFuzzyController accelerationController = new AccelerationController(and, mamdaniImplication, or, defuzzifier);
-		IFuzzyController rudderController = new RudderController(and, or, mamdaniImplication, defuzzifier);
+		IFuzzyController accelerationController = new AccelerationController(and, or, not, mamdaniImplication, or, defuzzifier);
+		IFuzzyController rudderController = new RudderController(and, or, not, mamdaniImplication, or, defuzzifier);
 		IFuzzyController boatController = new BoatController(accelerationController, rudderController);
 		
 		try (Scanner sc = new Scanner(System.in)) {

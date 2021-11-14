@@ -3,30 +3,61 @@ package hr.fer.zemris.fuzzy.boat;
 import java.util.Arrays;
 import java.util.List;
 
+import hr.fer.zemris.fuzzy.boat.set.CompositeFuzzySet;
+import hr.fer.zemris.fuzzy.boat.set.SimpleBoatFuzzySet;
 import hr.fer.zemris.fuzzy.controller.FuzzyController;
-import hr.fer.zemris.fuzzy.controller.Rule;
 import hr.fer.zemris.fuzzy.defuzzifier.IDefuzzifier;
 import hr.fer.zemris.fuzzy.operations.IBinaryFunction;
+import hr.fer.zemris.fuzzy.operations.IUnaryFunction;
 
-import static hr.fer.zemris.fuzzy.boat.BoatFuzzySets.*;
+import static hr.fer.zemris.fuzzy.boat.set.BoatFuzzySets.*;
 
 public class RudderController extends FuzzyController {
 
-	public RudderController(IBinaryFunction and, IBinaryFunction implication, IBinaryFunction conclusionReductor,
-			IDefuzzifier defuzzifier) {
-		super(conclusionReductor, defuzzifier, buildRules(and, implication));
+	public RudderController(IBinaryFunction and, IBinaryFunction or, IUnaryFunction not, IBinaryFunction implication,
+			IBinaryFunction conclusionReductor, IDefuzzifier defuzzifier) {
+		super(conclusionReductor, defuzzifier, buildRules(and, or, not, implication));
 	}
 	
-	private static List<Rule> buildRules(IBinaryFunction and, IBinaryFunction implication) {
+	private static List<NewRule> buildRules(IBinaryFunction and, IBinaryFunction or, IUnaryFunction not, IBinaryFunction implication) {
 		return Arrays.asList(
-			// if CRITICALY CLOSE to LEFT and FAST then HARD_RIGHT
-			new BoatRule(MODERATLY_CLOSE, null, CRITICALY_CLOSE, null, FAST, null, HARD_RIGHT, and, implication),
-			// if CRITICALY CLOSE to RIGHT and FAST VELOCITY then HARD_LEFT
-			new BoatRule(null, MODERATLY_CLOSE, null, CRITICALY_CLOSE, FAST, null, HARD_LEFT, and, implication),
-			// if CLOSE to LEFT then RIGHT
-			new BoatRule(MODERATLY_CLOSE, null, MODERATLY_CLOSE, null, null, null, RIGHT, and, implication),
-			// if CLOSE to RIGHT then LEFT
-			new BoatRule(null, MODERATLY_CLOSE, null, MODERATLY_CLOSE, null, null, LEFT, and, implication)
+			new NewRule(
+					new CompositeFuzzySet(or,
+							new SimpleBoatFuzzySet(CRITICALY_CLOSE, L_INDEX),
+							new SimpleBoatFuzzySet(CRITICALY_CLOSE, LK_INDEX)
+							), HARD_RIGHT, implication
+					),
+			new NewRule(
+					new CompositeFuzzySet(or,
+							new SimpleBoatFuzzySet(MODERATLY_CLOSE, L_INDEX),
+							new SimpleBoatFuzzySet(MODERATLY_CLOSE, LK_INDEX)
+							), RIGHT, implication
+					),
+			new NewRule(
+					new CompositeFuzzySet(or,
+							new SimpleBoatFuzzySet(CRITICALY_CLOSE, D_INDEX),
+							new SimpleBoatFuzzySet(CRITICALY_CLOSE, DK_INDEX)
+							), HARD_LEFT, implication
+					),
+			new NewRule(
+					new CompositeFuzzySet(or,
+							new SimpleBoatFuzzySet(MODERATLY_CLOSE, D_INDEX),
+							new SimpleBoatFuzzySet(MODERATLY_CLOSE, DK_INDEX)
+							), LEFT, implication
+					),
+			// if wrong direction and left bank is far, then hard turn left
+			new NewRule(
+					new CompositeFuzzySet(and,
+							new SimpleBoatFuzzySet(WRONG_DIRECTION, S_INDEX),
+							new SimpleBoatFuzzySet(FAR, L_INDEX)
+							), HARD_LEFT, implication
+					),
+			new NewRule(
+					new CompositeFuzzySet(and,
+							new SimpleBoatFuzzySet(WRONG_DIRECTION, S_INDEX),
+							new SimpleBoatFuzzySet(FAR, D_INDEX)
+							), HARD_RIGHT, implication
+					)
 		);
 	}
 }

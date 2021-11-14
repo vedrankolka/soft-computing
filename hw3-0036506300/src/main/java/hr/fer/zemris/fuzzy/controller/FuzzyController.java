@@ -2,6 +2,7 @@ package hr.fer.zemris.fuzzy.controller;
 
 import java.util.List;
 
+import hr.fer.zemris.fuzzy.boat.NewRule;
 import hr.fer.zemris.fuzzy.defuzzifier.IDefuzzifier;
 import hr.fer.zemris.fuzzy.operations.IBinaryFunction;
 import hr.fer.zemris.fuzzy.operations.Operations;
@@ -11,9 +12,9 @@ public abstract class FuzzyController implements IFuzzyController {
 
 	private IBinaryFunction conclusionReductor;
 	private IDefuzzifier defuzzifier;
-	private List<Rule> rules;
+	private List<NewRule> rules;
 	
-	public FuzzyController(IBinaryFunction conclusionReductor, IDefuzzifier defuzzifier, List<Rule> rules) {
+	public FuzzyController(IBinaryFunction conclusionReductor, IDefuzzifier defuzzifier, List<NewRule> rules) {
 		this.conclusionReductor = conclusionReductor;
 		this.defuzzifier = defuzzifier;
 		this.rules = rules;
