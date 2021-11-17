@@ -34,5 +34,20 @@ public abstract class FuzzySet implements IFuzzySet {
 		}
 		return true;
 	}
+	
+	@Override
+	public String toString() {
+		
+		StringBuilder sb = new StringBuilder("[ ");
+		
+		int i = 0;
+		int n = domain.getCardinality();
+		for (DomainElement e : domain) {
+			sb.append(e).append('/').append(getValueAt(e));
+			sb.append(i++ < n - 1 ? ", " : " ]");
+		}
+		
+		return sb.toString();
+	}
 
 }

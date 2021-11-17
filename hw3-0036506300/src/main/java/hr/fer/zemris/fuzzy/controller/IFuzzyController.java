@@ -1,7 +1,9 @@
 package hr.fer.zemris.fuzzy.controller;
 
+import hr.fer.zemris.fuzzy.set.IFuzzySet;
+
 public interface IFuzzyController {
 
-	int[] getOutputs(int ...inputs);
+	IFuzzySet[] getOutputs(int ...inputs);
 	
 }

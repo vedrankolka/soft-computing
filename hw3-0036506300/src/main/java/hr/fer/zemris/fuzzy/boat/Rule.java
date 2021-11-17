@@ -5,7 +5,7 @@ import hr.fer.zemris.fuzzy.operations.IBinaryFunction;
 import hr.fer.zemris.fuzzy.set.IFuzzySet;
 import hr.fer.zemris.fuzzy.set.MutableFuzzySet;
 
-public class NewRule {
+public class Rule {
 
 	private IBoatFuzzySet antecedent;
 	private IFuzzySet consequent;
@@ -13,7 +13,7 @@ public class NewRule {
 	// TODO mozda izbacit ovaj cache skroz
 	private MutableFuzzySet resultCache;
 	
-	public NewRule(IBoatFuzzySet antecedent, IFuzzySet consequent, IBinaryFunction implication) {
+	public Rule(IBoatFuzzySet antecedent, IFuzzySet consequent, IBinaryFunction implication) {
 		this.antecedent = antecedent;
 		this.consequent = consequent;
 		this.implication = implication;

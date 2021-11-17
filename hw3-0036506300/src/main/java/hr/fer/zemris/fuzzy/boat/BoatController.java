@@ -8,6 +8,7 @@ import hr.fer.zemris.fuzzy.defuzzifier.IDefuzzifier;
 import hr.fer.zemris.fuzzy.operations.IBinaryFunction;
 import hr.fer.zemris.fuzzy.operations.IUnaryFunction;
 import hr.fer.zemris.fuzzy.operations.Operations;
+import hr.fer.zemris.fuzzy.set.IFuzzySet;
 
 public class BoatController implements IFuzzyController {
 
@@ -16,7 +17,7 @@ public class BoatController implements IFuzzyController {
 
 	private IFuzzyController accelerationController;
 	private IFuzzyController rudderController;
-	private int[] outputs = new int[2];
+	private IFuzzySet[] outputs = new IFuzzySet[2];
 
 	public BoatController(IFuzzyController accelerationController, IFuzzyController rudderController) {
 		this.accelerationController = accelerationController;
@@ -24,7 +25,7 @@ public class BoatController implements IFuzzyController {
 	}
 
 	@Override
-	public int[] getOutputs(int... inputs) {
+	public IFuzzySet[] getOutputs(int... inputs) {
 		outputs[0] = accelerationController.getOutputs(inputs)[0];
 		outputs[1] = rudderController.getOutputs(inputs)[0];
 		return outputs;
@@ -38,8 +39,8 @@ public class BoatController implements IFuzzyController {
 		IUnaryFunction not = Operations.zadehNot();
 		
 		IDefuzzifier defuzzifier = new COADefuzzifier();
-		IFuzzyController accelerationController = new AccelerationController(and, or, not, mamdaniImplication, or, defuzzifier);
-		IFuzzyController rudderController = new RudderController(and, or, not, mamdaniImplication, or, defuzzifier);
+		IFuzzyController accelerationController = new AccelerationController(and, or, not, mamdaniImplication, or);
+		IFuzzyController rudderController = new RudderController(and, or, not, mamdaniImplication, or);
 		IFuzzyController boatController = new BoatController(accelerationController, rudderController);
 		
 		try (Scanner sc = new Scanner(System.in)) {
@@ -56,8 +57,8 @@ public class BoatController implements IFuzzyController {
 				int v = Integer.parseInt(lineParts[4]);
 				int s = Integer.parseInt(lineParts[5]);
 				
-				int[] outputs = boatController.getOutputs(l, d, lk, dk, v, s);
-				System.out.println(outputs[0] + " " + outputs[1]);
+				IFuzzySet[] fuzzyOutputs = boatController.getOutputs(l, d, lk, dk, v, s);
+				System.out.println(defuzzifier.defuzzify(fuzzyOutputs[0]) + " " + defuzzifier.defuzzify(fuzzyOutputs[1]));
 				System.out.flush();
 			}
 		}
