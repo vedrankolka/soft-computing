@@ -8,7 +8,6 @@ import hr.fer.zemris.fuzzy.boat.set.SimpleBoatFuzzySet;
 import hr.fer.zemris.fuzzy.controller.FuzzyController;
 import hr.fer.zemris.fuzzy.operations.IBinaryFunction;
 import hr.fer.zemris.fuzzy.operations.IUnaryFunction;
-import hr.fer.zemris.fuzzy.operations.Operations;
 
 import static hr.fer.zemris.fuzzy.boat.set.BoatFuzzySets.*;
 
@@ -59,17 +58,6 @@ public class AccelerationController extends FuzzyController {
 					),
 			// if very slow, then accelerate
 			new Rule(new SimpleBoatFuzzySet(VERY_SLOW, V_INDEX), ACCELERATE, implication)
-			// if fast, then decelerate
-//			,new Rule(
-//					new SimpleBoatFuzzySet(FAST, V_INDEX), DECELERATE, implication
-//					)
-//			,new Rule(
-//					new CompositeFuzzySet(and,
-//							new SimpleBoatFuzzySet(WRONG_DIRECTION, S_INDEX),
-//							new SimpleBoatFuzzySet(Operations.unaryOperation(VERY_SLOW, not), V_INDEX)
-//							), DECELERATE, implication
-//					
-//					)
 			);
 	}
 }

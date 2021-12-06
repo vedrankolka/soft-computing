@@ -21,7 +21,6 @@ public class BoatFuzzySets {
 	// DISTANCES
 	public static final IFuzzySet CLOSE = new CalculatedFuzzySet(DISTANCE, lFunction(25, 70));
 	public static final IFuzzySet FAR = new CalculatedFuzzySet(DISTANCE, gammaFunction(50, 150));
-	// public static final IFuzzySet FAR = new CalculatedFuzzySet(DISTANCE, gammaFunction(30, 300));
 
 	// VELOCITIES
 	public static final IFuzzySet VERY_SLOW = new CalculatedFuzzySet(VELOCITY, lFunction(10, 20));

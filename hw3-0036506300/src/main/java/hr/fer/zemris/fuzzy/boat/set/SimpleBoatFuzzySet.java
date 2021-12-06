@@ -15,7 +15,6 @@ public class SimpleBoatFuzzySet implements IBoatFuzzySet {
 
 	@Override
 	public double getValueAt(int[] inputs) {
-		// TODO vidit jel mogu ovo pretvorit direkt u index umjesto DOmainElement.of
 		return set.getValueAt(DomainElement.of(inputs[inputIndex]));
 	}
 
