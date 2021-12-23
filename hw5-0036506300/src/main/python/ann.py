@@ -6,7 +6,7 @@ import sys
 
 if len(sys.argv) < 6:
     print("usage:"
-          " python ann.py path_to_dataset architecture algorithm"
+          " python ann.py path_to_dataset architecture"
           " batch_size (-1 if algorithm is 'batch')"
           " epochs lr",
           file=sys.stderr)
@@ -28,19 +28,19 @@ df = pd.read_csv(path_to_dataset, header=None)
 x = np.array(df.iloc[:, :d])
 y = np.array(df.iloc[:, d:])
 dataset = fcann.Dataset(x, y, batch_size=batch_size)
-# print(y)
-# print(y.shape)
-
-# print(architecture)
+# build and train the model
 ann = fcann.FCANN(architecture)
 fcann.train(ann, dataset, fcann.MSE, epochs, lr)
 print("DONE")
 
 while True:
-    break
     sample = input()
     if sample == "STOP":
         break
 
+    print("Got sample " + sample, file=sys.stderr)
+    sys.stderr.flush()
     sample = np.array(sample.split(",")).astype(np.float64)
-    print(ann.forward(sample))
+    result = [str(x) for x in ann.forward(sample)[0]]
+    print(",".join(result))
+    sys.stdout.flush()

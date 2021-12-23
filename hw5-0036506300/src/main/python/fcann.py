@@ -1,6 +1,6 @@
 import numpy as np
 from typing import List
-
+import sys
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
@@ -131,10 +131,12 @@ def train(model, dataset, loss_fun, epochs=10000, lr=0.0001, print_period=100, t
         # if threshold is satisfied, print and break
         if loss < threshold:
             print("[{:5}] loss = {}".format(i, loss))
+            sys.stdout.flush()
             break
         # print every print_period epochs
         if i % print_period == 0:
             print("[{:5}] loss = {}".format(i, loss))
+            sys.stdout.flush()
 
 
 def shuffle_data(data_x, data_y):
@@ -162,19 +164,3 @@ class Dataset:
             yield self.x[index:index + self.batch_size],\
                   self.y[index:index + self.batch_size]
             index += self.batch_size
-
-"""
-    def backward_old(self, y_true):
-        # remember the derivations to adjust after calculating all
-        reversed_dWs = []
-        reversed_dbs = []
-        # calculate the output layer gradients
-        dL_ds_out = self.probs - y_true
-        dL_dW_out = self.layers[-1].input.T @ dL_ds_out
-        dL_db_out = np.sum(dL_ds_out, axis=0)
-        reversed_dWs.append(dL_dW_out)
-        reversed_dbs.append(dL_db_out)
-        for layer in reversed(self.layers[:-1]):
-            # TODO ipak impl u svakom Layer-u
-            dL_dh = 1 @ dL_ds_out
-"""
