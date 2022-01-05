@@ -1,5 +1,7 @@
 package hr.fer.zemris.mekrac.ann.gui;
 
+import hr.fer.zemris.mekrac.ann.ANN;
+import hr.fer.zemris.mekrac.ann.ANNPythonProxy;
 import hr.fer.zemris.mekrac.ann.utils.DataHoarder;
 
 import javax.swing.*;
@@ -13,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -35,11 +38,7 @@ public class DrawingFrame extends JFrame {
     public static int K = 5;
     // other stuff
     private DataHoarder dataHoarder = new DataHoarder(M, K);
-    private Process pythonProcess;
-    private Scanner stdIn;
-    private Scanner stdErr;
-    private BufferedWriter stdOut;
-    private AtomicBoolean finishedTraining = new AtomicBoolean();
+    private ANN ann;
     // GUI draw
     private JLabel label = new JLabel("Good evening.");
     private JTextField filenameTextField = new JTextField("dataset.csv");
@@ -95,6 +94,8 @@ public class DrawingFrame extends JFrame {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setFocusable(true);
         setTitle(TITLE);
+
+        this.ann = new ANNPythonProxy(2*M, K, trainingLogList::add);
 
         initGUI();
     }
@@ -282,44 +283,14 @@ public class DrawingFrame extends JFrame {
     private void train() {
         try {
             trainingLogList.removeAll();
-            String command = "/usr/bin/python3 src/main/python/ann.py";
-            command += " " + getPath();
-            command += " " + 2*M + "," + architectureField.getText() + "," + K;
-            command += " " + batchSizeField.getText();
-            command += " " + epochsField.getText();
-            command += " " + lrField.getText();
-            logger.warning(command);
 
-            this.pythonProcess = Runtime.getRuntime().exec(command);
-            // pythons stdOut, meaning our stdIn from him
-            this.stdIn = new Scanner(pythonProcess.getInputStream());
-            this.stdErr = new Scanner(pythonProcess.getErrorStream());
-            // BufferedReader stdIn = new BufferedReader(new InputStreamReader(pythonProcess.getInputStream()));
-            // pythons stdIn, meaning our stdOut to him
-            this.stdOut = new BufferedWriter(new OutputStreamWriter(pythonProcess.getOutputStream()));
-            // dedicate separate thread to read trainer's stdout
-            new Thread(() -> {
-                String line;
-                while (stdIn.hasNextLine()) {
-                    line = stdIn.nextLine();
-                    if ("DONE".equals(line)) {
-                        trainlTabLabel.setText("training is finished");
-                        finishedTraining.set(true);
-                        break;
-                    }
-                    trainingLogList.add("Trainer: " + line);
-                }
-            }).start();
-            // dedicate a thread to read from trainer's stderr
-            new Thread(() -> {
-                String line;
-                while (stdErr.hasNextLine()) {
-                    line = stdErr.nextLine();
-                    logger.severe("Trainer: " + line);
-                }
-                stdOut = null;
-                trainlTabLabel.setText("Trainer emmited errors, check the log.");
-            }).start();
+            String pathToDataset = getPath();
+            int[] hiddenLayers = Arrays.stream(architectureField.getText().split(","))
+                    .mapToInt(Integer::parseInt).toArray();
+            int batchSize = Integer.parseInt(batchSizeField.getText());
+            int epochs = Integer.parseInt(epochsField.getText());
+            double lr = Double.parseDouble(lrField.getText());
+            ann.train(pathToDataset, hiddenLayers, batchSize, epochs, lr);
 
         } catch (IOException e) {
             label.setText(e.getMessage());
@@ -328,20 +299,9 @@ public class DrawingFrame extends JFrame {
     }
 
     private void classify(double[] sample) {
-        if (!finishedTraining.get()) {
-            return;
-        } else if (stdOut == null) {
-            testTabLabel.setText("The process is not running.");
-            return;
-        }
-        String sampleData = Arrays.stream(sample).mapToObj(Double::toString).collect(Collectors.joining(","));
-        logger.warning("sending '" + sampleData + "'");
         new Thread(() -> {
             try {
-                stdOut.write(sampleData + "\n");
-                stdOut.flush();
-                String answer = stdIn.nextLine();
-                double[] probs = Arrays.stream(answer.split(",")).mapToDouble(Double::parseDouble).toArray();
+                double[] probs = ann.predict(sample);
                 int label = 0;
                 for (int i = 1; i < probs.length; i++) {
                     if (probs[i] > probs[label]) {
